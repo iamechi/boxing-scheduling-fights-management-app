@@ -1,4 +1,4 @@
-package model;
+package com.boxing_app.boxing_scheduling_fight_management_app.model;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -8,9 +8,8 @@ import lombok.Setter;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.sql.Date;
 
-@Entity
+@Entity(name="fights")
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter

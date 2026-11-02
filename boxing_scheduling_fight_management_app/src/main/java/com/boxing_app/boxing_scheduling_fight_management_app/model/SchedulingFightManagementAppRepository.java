@@ -1,4 +1,4 @@
-package model;
+package com.boxing_app.boxing_scheduling_fight_management_app.model;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;

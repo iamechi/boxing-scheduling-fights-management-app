@@ -1,14 +1,10 @@
-package model;
+package com.boxing_app.boxing_scheduling_fight_management_app.model;
 
 import jakarta.persistence.criteria.Predicate;
-import org.springframework.beans.factory.BeanRegistry;
 import org.springframework.data.jpa.domain.Specification;
 
-import java.sql.Date;
 import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 
 public class ScheduledFightSpecs {

@@ -1,4 +1,4 @@
-package model;
+package com.boxing_app.boxing_scheduling_fight_management_app.model;
 
 public record FighterDTO (
     Long fighterId,

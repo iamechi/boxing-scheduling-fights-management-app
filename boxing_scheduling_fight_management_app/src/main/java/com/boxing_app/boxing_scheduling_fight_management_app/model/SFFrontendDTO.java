@@ -1,12 +1,9 @@
-package model;
+package com.boxing_app.boxing_scheduling_fight_management_app.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
-import java.sql.Date;
-import java.time.LocalTime;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -26,4 +23,6 @@ public class SFFrontendDTO {
     private String time;
 
     private String event_status;
+
+    private String winner;
 }

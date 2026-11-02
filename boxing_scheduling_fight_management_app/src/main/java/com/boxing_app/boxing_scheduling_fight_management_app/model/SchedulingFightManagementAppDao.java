@@ -1,15 +1,14 @@
-package model;
+package com.boxing_app.boxing_scheduling_fight_management_app.model;
 
-import ch.qos.logback.core.util.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.context.config.ConfigDataResourceNotFoundException;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
-import rest.ArenaMicroserviceClient;
-import rest.FighterMicroserviceClient;
+import com.boxing_app.boxing_scheduling_fight_management_app.rest.ArenaMicroserviceClient;
+import com.boxing_app.boxing_scheduling_fight_management_app.rest.FighterMicroserviceClient;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
@@ -32,10 +31,30 @@ public class SchedulingFightManagementAppDao {
     }
 
     //handles saving of scheduled fights
-    public ScheduledFight saveScheduledFights(ScheduledFight fight) {return repo.save(fight);}
+    public ScheduledFight saveScheduledFights(ScheduledFightDTO fight) {
+        ScheduledFight fightSaveData;
+
+        DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        DateTimeFormatter timeFormat = DateTimeFormatter.ofPattern("HH:mm");
+
+        fightSaveData = new ScheduledFight(
+                fight.event_id(),
+                fight.arena_id(),
+                fight.fighter_id_1(),
+                fight.fighter_id_2(),
+                fight.winner_id(),
+                fight.event_status(),
+                LocalDate.parse(fight.date(), dateFormat),
+                LocalTime.parse(fight.time(), timeFormat)
+        );
+
+
+
+        return repo.save(fightSaveData);
+    }
 
     //this function retrieves fight records based on search criteria
-    public List<SFFrontendDTO> getFights(Map<String, Object> searchCriteria){
+    public List<SFFrontendDTO> getFights(SFSearchFormDTO searchCriteria){
         Object value;
         Specification<ScheduledFight> scheduledFightSpec;
         List<ArenaDTO> arenaDTOS;
@@ -46,32 +65,29 @@ public class SchedulingFightManagementAppDao {
         scheduledFightSpec = Specification.unrestricted();
         List<Long> arenaIdList = new ArrayList<>();
         Map<String, Object> arenaSearchCriteria = new HashMap<>();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
 
 
         /*Getting the search criteria values for retrieving the area data*/
-        value = searchCriteria.get("address");
-        if (value instanceof String providedAddress && StringUtils.hasLength(providedAddress)) {
-            arenaSearchCriteria.put("address", value);
-        }
-
-        value = searchCriteria.get("city");
+        value = searchCriteria.city();
         if (value instanceof String providedCity && StringUtils.hasLength(providedCity)) {
             arenaSearchCriteria.put("city", value);
         }
 
-        value = searchCriteria.get("state");
+        value = searchCriteria.state();
         if (value instanceof String providedState && StringUtils.hasLength(providedState)) {
             arenaSearchCriteria.put("state", value);
         }
 
-        value = searchCriteria.get("country");
+        value = searchCriteria.country();
         if (value instanceof String providedCountry && StringUtils.hasLength(providedCountry)) {
             arenaSearchCriteria.put("country", value);
         }
 
+        System.out.println("Before call to arena microservice");
         arenaDTOS = getArenaDTOList(arenaSearchCriteria);
+        System.out.println("After call to arena microservice");
 
         /*This creates a list of arena_ids and passes them as a parameter to a method from
         the specification class to create a specification object that will be used by hibernate
@@ -84,7 +100,7 @@ public class SchedulingFightManagementAppDao {
         scheduledFightSpec = scheduledFightSpec.and(ScheduledFightSpecs.orConcatenatedArenaIdStatements(arenaIdList));
 
         //This part here makes sure an equals condition on the date will be added to the sql query.
-        value = searchCriteria.get("date");
+        value = searchCriteria.date();
         if (value instanceof String providedDate && StringUtils.hasLength(providedDate)) {
             date = LocalDate.parse(providedDate, formatter);
             scheduledFightSpec = scheduledFightSpec.and(ScheduledFightSpecs.findByDate(date));
@@ -109,7 +125,7 @@ public class SchedulingFightManagementAppDao {
         FighterDTO fighterDTO;
         Optional<ArenaDTO> matchingArena;
         ArenaDTO arenaDTO;
-        Map<String, Object> fighterSearchCriteria;
+        FighterSearchFormDTO fighterSearchCriteria;
 
         frontendDTOS = new LinkedList<>();
         DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
@@ -118,18 +134,25 @@ public class SchedulingFightManagementAppDao {
         //This for loop handles the creation of the fight records that will be sent back to the front end
         for (ScheduledFight fightRecord : fightRecords) {
             frontendDTO = new SFFrontendDTO();
-            fighterSearchCriteria = new HashMap<>();
+            fighterSearchCriteria = new FighterSearchFormDTO();
 
             //Setting of fighter 1 and fighter 2 names
-            fighterSearchCriteria.put("fighterID",fightRecord.getFighter_id_1());
+            fighterSearchCriteria.setFighterID(fightRecord.getFighter_id_1());
             fighterDTO = fighterMicroserviceClient.getFighterData(fighterSearchCriteria).remove(0);
-            fighterName = fighterDTO.first_name() + fighterDTO.last_name();
+            fighterName = fighterDTO.first_name() + " " + fighterDTO.last_name();
             frontendDTO.setFighter_1(fighterName);
 
-            fighterSearchCriteria.put("fighterID",fightRecord.getFighter_id_2());
+            fighterSearchCriteria.setFighterID(fightRecord.getFighter_id_2());
             fighterDTO = fighterMicroserviceClient.getFighterData(fighterSearchCriteria).remove(0);
-            fighterName = fighterDTO.first_name() + fighterDTO.last_name();
+            fighterName = fighterDTO.first_name() + " " + fighterDTO.last_name();
             frontendDTO.setFighter_2(fighterName);
+
+            if (fightRecord.getWinner_id() != null) {
+                fighterSearchCriteria.setFighterID(fightRecord.getWinner_id());
+                fighterDTO = fighterMicroserviceClient.getFighterData(fighterSearchCriteria).remove(0);
+                fighterName = fighterDTO.first_name() + " " + fighterDTO.last_name();
+                frontendDTO.setWinner(fighterName);
+            }
 
             //This sets the information about the arena
             matchingArena = arenaData.stream()
