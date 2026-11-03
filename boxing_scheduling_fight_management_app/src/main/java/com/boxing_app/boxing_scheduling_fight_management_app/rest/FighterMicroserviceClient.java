@@ -11,8 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 @Component
-@FeignClient(name = "${spring.cloud.openfeign.client.config.fighter-microservice.name}",
-             url = "${spring.cloud.openfeign.client.config.fighter-microservice.domain-url}")
+@FeignClient(name = "${spring.cloud.openfeign.client.config.fighter-microservice.name}")
 public interface FighterMicroserviceClient {
     @GetMapping("/fighters/search")
     public List<FighterDTO> getFighterData(@RequestBody FighterSearchFormDTO searchCriteria);

@@ -11,8 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 @Component
-@FeignClient(name="${spring.cloud.openfeign.client.config.arena-microservice.name}",
-             url="${spring.cloud.openfeign.client.config.arena-microservice.domain-url}")
+@FeignClient(name="${spring.cloud.openfeign.client.config.arena-microservice.name}")
 public interface ArenaMicroserviceClient {
     @PostMapping("/arenas/search")
     List<ArenaDTO> getArenaData(@RequestBody Map<String, Object> searchCriteria);
