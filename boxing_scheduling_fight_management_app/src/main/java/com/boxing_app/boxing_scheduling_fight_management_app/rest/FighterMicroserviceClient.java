@@ -13,6 +13,6 @@ import java.util.Map;
 @Component
 @FeignClient(name = "${spring.cloud.openfeign.client.config.fighter-microservice.name}")
 public interface FighterMicroserviceClient {
-    @GetMapping("/fighters/search")
+    @GetMapping("/api/fighters/search")
     public List<FighterDTO> getFighterData(@RequestBody FighterSearchFormDTO searchCriteria);
 }
