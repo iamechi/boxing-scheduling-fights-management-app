@@ -15,12 +15,13 @@ import java.util.Map;
         allowedHeaders = "*",
         methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT, RequestMethod.DELETE, RequestMethod.OPTIONS}
 )
+@RequestMapping("/api/schedulefights")
 @RestController
 public class SchedulingFightManagementAppController {
     @Autowired
     private SchedulingFightManagementAppDao service;
 
-    @PostMapping("/schedulefight/save")
+    @PostMapping("/save")
     public ResponseEntity<?> saveScheduledFightRecord(@RequestBody ScheduledFightDTO scheduledFightRecord) {
         ScheduledFight savedScheduledFight;
         savedScheduledFight = service.saveScheduledFights(scheduledFightRecord);
@@ -28,13 +29,13 @@ public class SchedulingFightManagementAppController {
         return ResponseEntity.ok(savedScheduledFight);
     }
 
-    @GetMapping("/schedulefight")
+    @GetMapping
     public List<SFFrontendDTO> getAllScheduledFightRecords() {
         SFSearchFormDTO emptySearch = new SFSearchFormDTO(null, null, null, null, null);
         return service.getFights(emptySearch);
     }
 
-    @PostMapping("/schedulefight/search")
+    @PostMapping("/search")
     public List<SFFrontendDTO> getScheduledFightRecords(@RequestBody SFSearchFormDTO searchCriteria) {
         System.out.println("entered getScheduledFightRecords");
         return service.getFights(searchCriteria);
