@@ -15,7 +15,7 @@ import java.util.Map;
         allowedHeaders = "*",
         methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT, RequestMethod.DELETE, RequestMethod.OPTIONS}
 )
-@RequestMapping("/api/schedulefights")
+@RequestMapping("/api/schedulefight")
 @RestController
 public class SchedulingFightManagementAppController {
     @Autowired
